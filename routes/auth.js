@@ -2,6 +2,7 @@ import express from "express";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import verifyUser from "../verifyToken.js";
 
 const saltRounds = 10;
 const router = express.Router();
@@ -17,7 +18,6 @@ router.post("/register", async (req, res) => {
 			email: req.body.email,
 			password: hashedPassword,
 		});
-
 
 		const user = await newUser.save();
 		res.status(201).json(user);
@@ -59,6 +59,19 @@ router.post("/login", async (req, res) => {
 		}
 	} catch (err) {
 		res.status(500).json({ message: err });
+	}
+});
+
+// Is Logged In
+router.get("/", verifyUser, async (req, res) => {
+	try {
+		const token = req.headers.authorization.split(" ")[1];
+		const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+		const user = await User.findById(decoded.id);
+		const { password, ...others } = user._doc;
+		res.status(200).json({ message: "User is logged in.", ...others });
+	} catch (err) {
+		res.status(401).json({ message: err });
 	}
 });
 

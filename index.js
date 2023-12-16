@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/users.js";
 import movieRoute from "./routes/movies.js";
@@ -23,6 +24,7 @@ mongoose
 		console.log(`Mongoose COULD NOT connect to MongoDB: ${err}`);
 	});
 
+app.use(cors());
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/movies", movieRoute);

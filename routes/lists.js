@@ -1,7 +1,7 @@
 import express from "express";
 import List from "../models/List.js";
 import verifyUser from "../verifyToken.js";
-import Movie from "../models/Movie";
+import Movie from "../models/Movie.js";
 
 const router = express.Router();
 
