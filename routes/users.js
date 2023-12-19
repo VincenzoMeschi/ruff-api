@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import verifyUser from "../verifyToken.js";
 
 const router = express.Router();
+const saltRounds = 10;
 
 // Update
 
@@ -104,6 +105,31 @@ router.get("/stats", async (req, res) => {
 		res.status(200).json(data);
 	} catch (err) {
 		res.status(500).json(err);
+	}
+});
+
+// Admin creates new user OR admin user
+router.post("/admin/create/user", verifyUser, async (req, res) => {
+	if (req.user.isAdmin) {
+		try {
+			const salt = bcrypt.genSaltSync(saltRounds);
+			const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+
+			const newUser = new User({
+				username: req.body.username,
+				email: req.body.email,
+				password: hashedPassword,
+				isAdmin: req.body.isAdmin,
+				profilePic: req.body.profilePic,
+			});
+
+			const user = await newUser.save();
+			res.status(201).json(user);
+		} catch (err) {
+			res.status(500).json({ message: err + "server EREFASDFADF" });
+		}
+	} else {
+		res.status(403).json({ message: "You are not authorized to do that." });
 	}
 });
 
