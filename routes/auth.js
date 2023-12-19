@@ -2,7 +2,7 @@ import express from "express";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import verifyUser from "../verifyToken.js"; 
+import verifyUser from "../verifyToken.js";
 
 const saltRounds = 10;
 const router = express.Router();
@@ -74,7 +74,5 @@ router.get("/", verifyUser, async (req, res) => {
 		res.status(401).json({ message: err });
 	}
 });
-
-
 
 export default router;

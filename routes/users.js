@@ -36,15 +36,11 @@ router.put("/:id", verifyUser, async (req, res) => {
 // Delete
 
 router.delete("/:id", verifyUser, async (req, res) => {
-	if (req.user.id === req.params.id || req.user.isAdmin) {
-		try {
-			await User.findByIdAndDelete(req.params.id);
-			res.status(200).json("User has been deleted...");
-		} catch (err) {
-			res.status(500).json(err);
-		}
-	} else {
-		return res.status(403).json("You can only delete your account!");
+	try {
+		await User.findByIdAndDelete(req.params.id);
+		res.status(200).json("User has been deleted...");
+	} catch (err) {
+		res.status(500).json(err);
 	}
 });
 // Get User
@@ -75,6 +71,7 @@ router.get("/", verifyUser, async (req, res) => {
 		return res.status(403).json("You are not allowed to see all users!");
 	}
 });
+
 // Get All User Stats
 
 router.get("/stats", async (req, res) => {
