@@ -16,13 +16,19 @@ router.post("/register", async (req, res) => {
 		const newUser = new User({
 			username: req.body.username,
 			email: req.body.email,
+			profilePic: req.body.profilePic,
 			password: hashedPassword,
 		});
 
 		const user = await newUser.save();
 		res.status(201).json(user);
 	} catch (err) {
-		res.status(500).json({ message: err });
+		// send different status code if username or email already exists
+		if (err.keyPattern.username === 1 || err.keyPattern.email === 1) {
+			res.status(409).json({ message: err });
+		} else {
+			res.status(500).json({ message: err });
+		}
 	}
 });
 
