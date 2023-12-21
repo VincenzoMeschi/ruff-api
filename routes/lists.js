@@ -28,7 +28,7 @@ router.post("/", verifyUser, async (req, res) => {
 router.delete("/find/:id", verifyUser, async (req, res) => {
 	if (req.user.isAdmin) {
 		try {
-			await Movie.findByIdAndDelete(req.params.id);
+			await List.findByIdAndDelete(req.params.id);
 			res.status(200).json("List has been deleted...");
 		} catch (err) {
 			res.status(500).json(err);
@@ -66,6 +66,46 @@ router.get("/", verifyUser, async (req, res) => {
 		res.status(200).json(list);
 	} catch (err) {
 		res.status(500).json(err);
+	}
+});
+
+// Get list by id
+router.get("/find/:id", verifyUser, async (req, res) => {
+	if (req.user.isAdmin) {
+		try {
+			const list = await List.findById(req.params.id);
+			res.status(200).json(list);
+		} catch (err) {
+			res.status(500).json(err);
+		}
+	} else {
+		return res
+			.status(403)
+			.json(
+				"Unauthorized Access. Please contact admin if you believe this is a mistake."
+			);
+	}
+});
+
+// Update list
+router.put("/:id", verifyUser, async (req, res) => {
+	if (req.user.isAdmin) {
+		try {
+			const updatedList = await List.findByIdAndUpdate(
+				req.params.id,
+				{ $set: req.body },
+				{ new: true }
+			);
+			res.status(200).json(updatedList);
+		} catch (err) {
+			res.status(500).json(err);
+		}
+	} else {
+		return res
+			.status(403)
+			.json(
+				"Unauthorized Access. Please contact admin if you believe this is a mistake."
+			);
 	}
 });
 
