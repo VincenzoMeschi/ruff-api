@@ -123,7 +123,7 @@ router.post("/admin/create/user", verifyUser, async (req, res) => {
 			const user = await newUser.save();
 			res.status(201).json(user);
 		} catch (err) {
-			res.status(500).json({ message: err + "server EREFASDFADF" });
+			res.status(500).json({ message: err });
 		}
 	} else {
 		res.status(403).json({ message: "You are not authorized to do that." });
