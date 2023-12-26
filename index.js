@@ -30,18 +30,11 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/movies", movieRoute);
 app.use("/api/lists", listRoute);
-app.use(express.static(path.join(__dirname, "../client/build")));
-app.use("/admin", express.static(path.join(__dirname, "../admin/build")));
 
-// The catchall handler: for any request that doesn't match
-// one above, send back React's index.html file.
 app.get("*", (req, res) => {
 	res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
 
-app.get("/admin/*", (req, res) => {
-	res.sendFile(path.join(__dirname, "../admin/build/index.html"));
-});
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
