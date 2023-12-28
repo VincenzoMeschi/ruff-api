@@ -81,4 +81,13 @@ router.get("/", verifyUser, async (req, res) => {
 	}
 });
 
+// Get Auth URL from s3
+router.get("/s3", verifyUser, async (req, res) => {
+	try { 
+		
+	} catch (err) {
+
+	}
+})
+
 export default router;

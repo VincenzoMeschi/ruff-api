@@ -68,16 +68,12 @@ router.get("/find/:id", verifyUser, async (req, res) => {
 
 // Get all movies
 router.get("/", verifyUser, async (req, res) => {
-	if (req.user.isAdmin) {
 		try {
 			const movies = await Movie.find();
 			res.status(201).json(movies.reverse());
 		} catch (err) {
 			res.status(500).json(err);
 		}
-	} else {
-		return res.status(403).json("You are not allowed!");
-	}
 });
 
 // Get random movie
