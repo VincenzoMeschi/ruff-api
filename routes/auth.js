@@ -3,6 +3,15 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import verifyUser from "../verifyToken.js";
+import {
+	generateProfileUploadURL,
+	deleteProfileImageFromS3,
+} from "../s3_profile_image.js";
+import { generateMovieUploadURL, deleteMovieFromS3 } from "../s3_movies.js";
+import {
+	generateMoviePosterUploadURL,
+	deleteMoviePosterImageFromS3,
+} from "../s3_movie_posters.js";
 
 const saltRounds = 10;
 const router = express.Router();
@@ -81,13 +90,122 @@ router.get("/", verifyUser, async (req, res) => {
 	}
 });
 
-// Get Auth URL from s3
-router.get("/s3", verifyUser, async (req, res) => {
-	try { 
-		
-	} catch (err) {
-
+// Get Auth URL from s3 for movie posters
+router.get("/s3/url/movie_posters/:filename", verifyUser, async (req, res) => {
+	if (!req.params.filename) {
+		res.status(400).json({ message: "No filename provided." });
 	}
-})
+	if (req.user.isAdmin === true) {
+		try {
+			const url = await generateMoviePosterUploadURL(req.params.filename);
+			res.status(200).json(url);
+		} catch (err) {
+			res.status(500).json({ message: err });
+		}
+	} else {
+		res.status(401).json({ message: "You are not authorized." });
+	}
+});
+
+// Get Auth URL from s3 for movies
+router.get("/s3/url/movies/:filename", verifyUser, async (req, res) => {
+	if (!req.params.filename) {
+		res.status(400).json({ message: "No filename provided." });
+	}
+	if (req.user.isAdmin === true) {
+		try {
+			const url = await generateMovieUploadURL(req.params.filename);
+			res.status(200).json(url);
+		} catch (err) {
+			res.status(500).json({ message: err });
+		}
+	} else {
+		res.status(401).json({ message: "You are not authorized." });
+	}
+});
+
+// Get Auth URL from s3 for profile images
+router.get("/s3/url/profile_images/:filename", verifyUser, async (req, res) => {
+	if (!req.params.filename) {
+		res.status(400).json({ message: "No filename provided." });
+	}
+	if (
+		req.user.profilePic.includes(req.params.filename) ||
+		req.user.isAdmin === true
+	) {
+		try {
+			const url = await generateProfileUploadURL(req.params.filename);
+			res.status(200).json(url);
+		} catch (err) {
+			res.status(500).json({ message: err });
+		}
+	}
+});
+
+// Delete profile image from s3
+router.delete(
+	"/s3/delete/profile_images/:filename",
+	verifyUser,
+	async (req, res) => {
+		if (
+			req.user.profilePic.includes(req.params.filename) ||
+			req.user.isAdmin === true
+		) {
+			if (!req.params.filename) {
+				res.status(400).json({ message: "No filename provided." });
+			}
+			try {
+				const url = await deleteProfileImageFromS3(req.params.filename);
+				res.status(200).json(url);
+			} catch (err) {
+				res.status(404).json({ message: "File not in S3 Bucket" });
+			}
+		} else {
+			res.status(401).json({
+				message: "You can only delete your own profile picture!",
+			});
+		}
+	}
+);
+
+// Delete movie from s3
+router.delete("/s3/delete/movies/:filename", verifyUser, async (req, res) => {
+	if (!req.params.filename) {
+		res.status(400).json({ message: "No filename provided." });
+	}
+	if (req.user.isAdmin === true) {
+		try {
+			const url = await deleteMovieFromS3(req.params.filename);
+			res.status(200).json(url);
+		} catch (err) {
+			res.status(404).json({ message: "File not in S3 Bucket" });
+		}
+	} else {
+		res.status(401).json({ message: "You are not authorized." });
+	}
+});
+
+// Delete movie poster from s3
+router.delete(
+	"/s3/delete/movie_posters/:filename",
+	verifyUser,
+	async (req, res) => {
+		if (!req.params.filename) {
+			res.status(400).json({ message: "No filename provided." });
+		}
+		if (req.user.isAdmin === true) {
+			try {
+				const url = await deleteMoviePosterImageFromS3(
+					req.params.filename
+				);
+				res.status(200).json(url);
+			} catch (err) {
+				res.status(404).json({ message: "File not in S3 Bucket" });
+			}
+		} else {
+			res.status(401).json({ message: "You are not authorized." });
+		}
+	}
+);
 
 export default router;
